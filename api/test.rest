@@ -1,0 +1,83 @@
+
+@baseUrl = http://localhost:8000
+
+### Login - Copie le token "access" de la réponse
+# @name login
+POST {{baseUrl}}/api/token/
+Content-Type: application/json
+
+{
+  "username": "husmar",
+  "password": "#Cool045"
+}
+
+###
+
+@access_token = {{login.response.body.access}}
+
+### Refresh token
+POST {{baseUrl}}/api/token/refresh/
+Content-Type: application/json
+
+{
+  "refresh": "{{login.response.body.refresh}}"
+}
+
+### Liste des reservations (filtrees)
+GET {{baseUrl}}/api/reservations/?platform=parkos&service_type=parking&status=confirmed
+Authorization: Bearer {{access_token}}
+
+### Reservations a venir
+GET {{baseUrl}}/api/reservations/upcoming/
+Authorization: Bearer {{access_token}}
+
+### Reservations passees
+GET {{baseUrl}}/api/reservations/past/
+Authorization: Bearer {{access_token}}
+
+### Stats reservations
+GET {{baseUrl}}/api/reservations/stats/
+Authorization: Bearer {{access_token}}
+
+### Forcer synchro compte email
+POST {{baseUrl}}/api/email-accounts/1/sync/
+Authorization: Bearer {{access_token}}
+
+### 🧪 Tester la connexion OAuth (récupère les 5 derniers emails)
+GET {{baseUrl}}/api/email-accounts/1/test_connection/
+Authorization: Bearer {{access_token}}
+
+### Marquer un email comme lu
+POST {{baseUrl}}/api/emails/1/mark_read/
+Authorization: Bearer {{access_token}}
+
+## 📡 Endpoints API pour React
+```
+# Auth
+POST /api/token/                        # Login (retourne access + refresh token)
+POST /api/token/refresh/                # Refresh token
+
+# Comptes email
+GET    /api/email-accounts/             # Liste
+POST   /api/email-accounts/             # Créer
+GET    /api/email-accounts/{id}/        # Détails
+PUT    /api/email-accounts/{id}/        # Modifier
+DELETE /api/email-accounts/{id}/        # Supprimer
+POST   /api/email-accounts/{id}/sync/   # Forcer synchro
+
+# Emails
+GET /api/emails/                        # Liste
+GET /api/emails/{id}/                   # Détails
+POST /api/emails/{id}/mark_read/        # Marquer lu
+
+# Réservations
+GET    /api/reservations/               # Liste (filtres: ?platform=parkos&service_type=parking&status=confirmed)
+GET    /api/reservations/{id}/          # Détails
+PUT    /api/reservations/{id}/          # Modifier
+DELETE /api/reservations/{id}/          # Supprimer
+GET    /api/reservations/upcoming/      # À venir
+GET    /api/reservations/past/          # Passées
+GET    /api/reservations/stats/         # Statistiques
+
+# Logs
+GET /api/sync-logs/                     # Historique synchros
